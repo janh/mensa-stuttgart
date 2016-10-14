@@ -1,0 +1,29 @@
+{
+  "name": "mensa-stuttgart",
+  "author": "Jan Hoffmann",
+  "version": "0.1.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Mensa Stuttgart",
+    "uuid": "6a39d407-9f43-4eb5-8822-71c7cb282fa4",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "dummy"
+    ],
+    "resources": {
+      "media": []
+    }
+  }
+}
