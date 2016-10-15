@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2016 Jan Hoffmann
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
