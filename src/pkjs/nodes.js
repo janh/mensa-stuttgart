@@ -29,6 +29,28 @@ Element.prototype = {
         return this._children;
     },
 
+    findElementsByName: function(name) {
+        var elements = [];
+        if (this._name == name) {
+            elements.push(this);
+        }
+        for (var i = 0; i < this._children.length; i++)  {
+            var child = this._children[i];
+            if (child instanceof Element) {
+                elements = elements.concat(child.findElementsByName(name));
+            }
+        }
+        return elements;
+    },
+
+    content: function() {
+        var content = "";
+        for (var i = 0; i < this._children.length; i++)  {
+            content += this._children[i].content();
+        }
+        return content;
+    },
+
 }
 
 
