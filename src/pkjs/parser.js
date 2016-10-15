@@ -62,12 +62,32 @@ function parseString(text) {
 }
 
 function parseText(text, start) {
-    var end = text.indexOf('<', start);
-    if (end == -1) {
-        end = text.length + 1;
+    var content = '';
+
+    while (true) {
+        var end = text.indexOf('<', start);
+        if (end == -1) {
+            content += decodeEntities(text.substring(start));
+            end = text.length + 1;
+            break;
+        }
+        content += decodeEntities(text.substring(start, end));
+
+        if (text.substring(end, end + 9) == '<![CDATA[') {
+            var cdataStart = end + 9;
+            var cdataEnd = text.indexOf(']]>', cdataStart);
+            if (cdataEnd == -1) {
+                content += text.substring(cdataStart);
+                end = text.length + 1;
+                break;
+            }
+            content += text.substring(cdataStart, cdataEnd);
+            start = cdataEnd + 3;
+        } else {
+            break;
+        }
     }
-    var content = text.substring(start, end);
-    content = decodeEntities(content);
+
     return {
         'text': content,
         'end': end - 1,
