@@ -66,8 +66,10 @@ function parseText(text, start) {
     if (end == -1) {
         end = text.length + 1;
     }
+    var content = text.substring(start, end);
+    content = decodeEntities(content);
     return {
-        'text': text.substring(start, end),
+        'text': content,
         'end': end - 1,
     };
 }
@@ -137,6 +139,26 @@ function parseAttributes(text) {
     }
 
     return data;
+}
+
+function decodeEntities(text) {
+    var map = {
+        'quot': '"',
+        'amp': '&',
+        'apos': "'",
+        'lt': '<',
+        'gt': '>',
+    };
+
+    text = text.replace(/&([a-z]+);/g, function(match, p1, offset, string) {
+        if (p1 in map) {
+            return map[p1];
+        } else {
+            return match;
+        }
+    });
+
+    return text;
 }
 
 
