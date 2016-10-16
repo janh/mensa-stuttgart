@@ -6,8 +6,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+var storage = require('./storage');
+var sender = require('./sender');
+
+
+var appReady = false;
+var menuSent = false;
+
+
 Pebble.addEventListener("ready",
     function(e) {
-        console.log("JS environment started.");
+        appReady = true;
+        if (storage.currentMenu() != null) {
+            sender.sendMenu();
+        }
+        if (storage.fastSellers() != null) {
+            sender.sendFastSellers();
+        }
     }
 );
+
+
+function errorHandler() {
+    if (!menuSent) {
+        sender.sendError();
+    }
+}
+
+function menuHandler() {
+    if (appReady) {
+        sender.sendMenu();
+    }
+}
+
+function fastSellersHandler() {
+    if (appReady) {
+        sender.sendFastSellers();
+    }
+}
+
+
+storage.init(errorHandler, menuHandler, fastSellersHandler);
