@@ -19,9 +19,20 @@
     "watchapp": {
       "watchface": false
     },
-    "messageKeys": [
-      "dummy"
-    ],
+    "messageKeys": {
+      "MessageType": 1,
+      "MenuCategoriesCount": 1000,
+      "MenuCategoriesTitleStart": 1100,
+      "MenuCategoriesMealCountStart": 1200,
+      "MenuCategoriesMealIndexStart": 1300,
+      "MenuMealsCount": 2000,
+      "MenuMealsTitleStart": 2100,
+      "MenuMealsPriceStudentStart": 2200,
+      "MenuMealsPriceGuestStart": 2300,
+      "FastSellersCount": 3000,
+      "FastSellersTitleStart": 3100,
+      "FastSellersDateStart": 3200
+    },
     "resources": {
       "media": []
     }
