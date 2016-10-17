@@ -72,7 +72,7 @@ static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index
                                                      GRect(0, 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), 64),
                                                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
 
-  return size.h + 8;
+  return size.h + 25;
 }
 
 static int16_t menu_get_header_height(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -86,6 +86,12 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
   GRect bounds = layer_get_bounds(cell_layer);
   graphics_draw_text(ctx, meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
                      GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), bounds.size.h),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+
+  char price[24];
+  snprintf(price, sizeof(price), STRING_FORMAT_MEAL_PRICE, meal->price_student, meal->price_guest);
+  graphics_draw_text(ctx, price, fonts_get_system_font(FONT_KEY_GOTHIC_14),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), bounds.size.h - 21, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), 16),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
