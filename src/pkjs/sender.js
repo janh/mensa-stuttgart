@@ -45,6 +45,7 @@ function sendMenu() {
             dict[keys.MenuMealsTitleStart+mealCount] = meal.title;
             dict[keys.MenuMealsPriceStudentStart+mealCount] = meal.priceStudent;
             dict[keys.MenuMealsPriceGuestStart+mealCount] = meal.priceGuest;
+            mealCount++;
         }
     }
     dict[keys.MenuMealsCount] = mealCount;
