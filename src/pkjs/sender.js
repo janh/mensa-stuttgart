@@ -58,13 +58,23 @@ function sendFastSellers() {
     dict[keys.MessageType] = MESSAGE_TYPE_FAST_SELLERS;
 
     var fastSellers = storage.fastSellers();
-    dict[keys.FastSellersCount] = fastSellers.length;
+
+    var currentIndex = -1;
+    var fastSeller = null;
+    var lastFastSeller = null;
 
     for (var i = 0; i < fastSellers.length; i++) {
-        var fastSeller = fastSellers[i];
-        dict[keys.FastSellersTitleStart+i] = fastSeller.title;
-        dict[keys.FastSellersDateStart+i] = fastSeller.date;
+        lastFastSeller = fastSeller;
+        fastSeller = fastSellers[i];
+
+        if (lastFastSeller == null || fastSeller.title != lastFastSeller.title) {
+            currentIndex++;
+            dict[keys.FastSellersTitleStart+currentIndex] = fastSeller.title;
+        }
+        dict[keys.FastSellersDateStart+currentIndex] = fastSeller.date + 86400;
     }
+
+    dict[keys.FastSellersCount] = currentIndex + 1;
 
     queueMessage(dict);
 }
