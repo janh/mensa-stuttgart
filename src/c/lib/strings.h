@@ -19,3 +19,5 @@
 
 #define STRING_ERROR_TITLE_DATA "Verarbeitungs- fehler"
 #define STRING_ERROR_DESC_DATA "Laden der Daten nicht möglich"
+
+#define STRING_MENU_NOT_AVAILABLE "Kein Angebot verfügbar"
