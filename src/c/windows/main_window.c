@@ -10,6 +10,7 @@
 #include "../layers/progress_layer.h"
 #include "../lib/colors.h"
 #include "../lib/util.h"
+#include "../lib/data.h"
 
 #include <pebble.h>
 #include <inttypes.h>
@@ -34,23 +35,48 @@ static void progress_layer_hidden() {
   util_layer_animation_slide_up(menu_layer);
 }
 
+static void menu_available() {
+  progress_layer_hide(s_progress_layer, true, &progress_layer_hidden);
+}
+
+
+static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data) {
+  return data_get_menu_category_count();
+}
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-  return 0;
+  if (data_get_menu_category_count() == 0) {
+    return 0;
+  }
+  data_menu_category *category = data_get_menu_category(section_index);
+  return category->meal_count;
 }
 
-static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context) {
-  return 0;
+static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
+  return 26;
 }
 
-static int16_t menu_get_header_height(MenuLayer *menu_layer, uint16_t section_index, void *callback_context) {
-  return 0;
+static int16_t menu_get_header_height(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+  return 20;
 }
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
+  data_menu_category *category = data_get_menu_category(cell_index->section);
+  data_menu_meal *meal = data_get_menu_meal(category->meal_index + cell_index->row);
+
+  GRect bounds = layer_get_bounds(cell_layer);
+  graphics_draw_text(ctx, meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(6, 42), 26),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
+  data_menu_category *category = data_get_menu_category(section_index);
+
+  GRect bounds = layer_get_bounds(cell_layer);
+  graphics_draw_text(ctx, category->title, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), 2, bounds.size.w - PBL_IF_RECT_ELSE(6, 42), 16),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
@@ -68,6 +94,7 @@ static void window_load(Window *window) {
   menu_layer_set_normal_colors(s_menu_layer, COLOR_MENU_NORMAL_BACKGROUND, COLOR_MENU_NORMAL_FOREGROUND);
   menu_layer_set_highlight_colors(s_menu_layer, COLOR_MENU_HIGHLIGHT_BACKGROUND, COLOR_MENU_HIGHLIGHT_FOREGROUND);
   menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks){
+    .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = menu_get_cell_height,
     .get_header_height = menu_get_header_height,
@@ -92,6 +119,7 @@ static void window_unload(Window *window) {
 
 static void window_appear(Window *window) {
   progress_layer_show(s_progress_layer);
+  data_set_menu_available_callback(menu_available);
 }
 
 static void window_disappear(Window *window) {
