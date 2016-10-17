@@ -64,7 +64,15 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 }
 
 static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  return 26;
+  data_menu_category *category = data_get_menu_category(cell_index->section);
+  data_menu_meal *meal = data_get_menu_meal(category->meal_index + cell_index->row);
+
+  GRect bounds = layer_get_bounds(menu_layer_get_layer(menu_layer));
+  GSize size = graphics_text_layout_get_content_size(meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
+                                                     GRect(0, 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), 64),
+                                                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
+
+  return size.h + 8;
 }
 
 static int16_t menu_get_header_height(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -77,7 +85,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
 
   GRect bounds = layer_get_bounds(cell_layer);
   graphics_draw_text(ctx, meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
-                     GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(6, 42), 26),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), bounds.size.h),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
@@ -86,12 +94,8 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
 
   GRect bounds = layer_get_bounds(cell_layer);
   graphics_draw_text(ctx, category->title, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD),
-                     GRect(PBL_IF_RECT_ELSE(6, 24), 2, bounds.size.w - PBL_IF_RECT_ELSE(6, 42), 16),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), 2, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), 16),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
-}
-
-static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  uint16_t index = cell_index->row;
 }
 
 
@@ -111,7 +115,6 @@ static void window_load(Window *window) {
     .get_header_height = menu_get_header_height,
     .draw_row = menu_draw_row_callback,
     .draw_header = menu_draw_header_callback,
-    .select_click = menu_select_callback,
   });
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
   layer_set_hidden(menu_layer_get_layer(s_menu_layer), true);
