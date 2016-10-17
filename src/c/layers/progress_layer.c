@@ -88,7 +88,8 @@ static void progress_layer_callback(void *context) {
   ProgressLayer *progress_layer = (ProgressLayer *)context;
 
   ProgressLayerData *data = (ProgressLayerData *)layer_get_data(progress_layer);
-  data->progress_percent = MIN(10000, data->progress_percent + (10000 - data->progress_percent) / 50 + 1);
+  int16_t fraction = (10000 - data->progress_percent) / 500;
+  data->progress_percent = MIN(10000, data->progress_percent + (fraction * fraction) / 4 + 4);
   layer_mark_dirty(progress_layer);
 
   progress_layer_next_timer(progress_layer);
