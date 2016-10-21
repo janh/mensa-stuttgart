@@ -69,7 +69,8 @@ static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index
 
   GRect bounds = layer_get_bounds(menu_layer_get_layer(menu_layer));
   GSize size = graphics_text_layout_get_content_size(meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
-                                                     GRect(0, 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), 64),
+                                                     GRect(0, 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45),
+                                                           PBL_IF_RECT_ELSE(84, 64)),
                                                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
 
   return size.h + 25;
