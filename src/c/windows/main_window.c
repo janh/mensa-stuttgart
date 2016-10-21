@@ -85,7 +85,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
 
   GRect bounds = layer_get_bounds(cell_layer);
   graphics_draw_text(ctx, meal->title, fonts_get_system_font(FONT_KEY_GOTHIC_18),
-                     GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), bounds.size.h),
+                     GRect(PBL_IF_RECT_ELSE(6, 24), 0, bounds.size.w - PBL_IF_RECT_ELSE(9, 45), bounds.size.h - 25),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
   char price[24];
