@@ -7,11 +7,14 @@
  */
 
 #include "util.h"
+#include "size.h"
 
 
 void util_layer_animation_slide_up(Layer *layer) {
+  int16_t offset = SIZE_UTIL_ANIMATION_OFFSET[size_get_index()];
+
   GRect end = layer_get_frame(layer);
-  GRect start = grect_inset(end, GEdgeInsets(20,0,-20,0));
+  GRect start = grect_inset(end, GEdgeInsets(offset, 0, -offset, 0));
   layer_set_frame(layer, start);
 
   Animation *anim = (Animation *)property_animation_create_layer_frame(layer, &start, &end);

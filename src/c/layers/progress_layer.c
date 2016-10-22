@@ -25,6 +25,7 @@
 
 #include "progress_layer.h"
 #include "../lib/colors.h"
+#include "../lib/size.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -41,24 +42,30 @@ static int16_t scale_progress_bar_width_px(unsigned int progress_percent, int16_
 static void progress_layer_update_proc(ProgressLayer* progress_layer, GContext* ctx) {
   ProgressLayerData *data = (ProgressLayerData *)layer_get_data(progress_layer);
   GRect bounds = layer_get_bounds(progress_layer);
+  int size_index = size_get_index();
 
   int16_t progress_bar_width_px = scale_progress_bar_width_px(data->progress_percent, bounds.size.w);
   GRect progress_bar = GRect(bounds.origin.x, bounds.origin.y, progress_bar_width_px, bounds.size.h);
 
   graphics_context_set_fill_color(ctx, COLOR_LAYER_PROGRESS_BACKGROUND);
-  graphics_fill_rect(ctx, bounds, 2, GCornersAll);
+  graphics_fill_rect(ctx, bounds, SIZE_PROGRESS_RADIUS[size_index], GCornersAll);
 
   graphics_context_set_fill_color(ctx, COLOR_LAYER_PROGRESS_FOREGROUND);
-  graphics_fill_rect(ctx, progress_bar, 2, GCornersAll);
+  graphics_fill_rect(ctx, progress_bar, SIZE_PROGRESS_RADIUS[size_index], GCornersAll);
 
 #ifndef PBL_COLOR
   graphics_context_set_stroke_color(ctx, COLOR_LAYER_PROGRESS_FOREGROUND);
-  graphics_draw_round_rect(ctx, bounds, 2);
+  graphics_draw_round_rect(ctx, bounds, SIZE_PROGRESS_RADIUS[size_index]);
 #endif
 }
 
 ProgressLayer* progress_layer_create(GRect frame) {
-  GRect actual_frame = GRect(frame.origin.x + (frame.size.w - 80) / 2, frame.origin.y + (frame.size.h - 6) / 2, 80, 6);
+  int size_index = size_get_index();
+
+  GRect actual_frame = GRect(frame.origin.x + (frame.size.w - SIZE_PROGRESS_WIDTH[size_index]) / 2,
+                             frame.origin.y + (frame.size.h - SIZE_PROGRESS_HEIGHT[size_index]) / 2,
+                             SIZE_PROGRESS_WIDTH[size_index],
+                             SIZE_PROGRESS_HEIGHT[size_index]);
   ProgressLayer *progress_layer = layer_create_with_data(actual_frame, sizeof(ProgressLayerData));
   layer_set_update_proc(progress_layer, progress_layer_update_proc);
   layer_mark_dirty(progress_layer);
@@ -108,11 +115,13 @@ static void progress_layer_anim_stopped_handler(Animation *animation, bool finis
   ProgressLayer *progress_layer = (ProgressLayer *)context;
   ProgressLayerData *data = (ProgressLayerData *)layer_get_data(progress_layer);
 
+  int size_index = size_get_index();
+
   layer_set_hidden(progress_layer, true);
 
   GRect frame = layer_get_frame(progress_layer);
-  frame.size.w = 80;
-  frame.origin.x -= 37;
+  frame.size.w = SIZE_PROGRESS_WIDTH[size_index];
+  frame.origin.x -= (SIZE_PROGRESS_WIDTH[size_index] - SIZE_PROGRESS_HEIGHT[size_index]) / 2;
   layer_set_frame(progress_layer, frame);
 
   if (data->callback != NULL) {
@@ -124,10 +133,12 @@ static void progress_layer_hide_animate(ProgressLayer* progress_layer, ProgressL
   ProgressLayerData *data = (ProgressLayerData *)layer_get_data(progress_layer);
   data->callback = callback;
 
+  int size_index = size_get_index();
+
   GRect start = layer_get_frame(progress_layer);
   GRect end = start;
-  end.size.w = 6;
-  end.origin.x += 37;
+  end.size.w = SIZE_PROGRESS_HEIGHT[size_index];
+  end.origin.x += (SIZE_PROGRESS_WIDTH[size_index] - SIZE_PROGRESS_HEIGHT[size_index]) / 2;
 
   Animation *anim = (Animation *)property_animation_create_layer_frame(progress_layer, &start, &end);
 
