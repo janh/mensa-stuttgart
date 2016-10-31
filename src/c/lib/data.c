@@ -14,6 +14,8 @@
 #include <pebble.h>
 
 
+static bool s_error_received;
+
 static bool s_menu_received;
 static MenuAvailable s_menu_available_callback;
 
@@ -38,8 +40,12 @@ static void cancel_timer() {
 
 
 static void handle_error() {
-  window_stack_pop(false);
-  error_window_push(STRING_ERROR_TITLE_DATA, STRING_ERROR_DESC_DATA);
+  if (!s_error_received) {
+    cancel_timer();
+    s_error_received = true;
+    window_stack_pop(false);
+    error_window_push(STRING_ERROR_TITLE_DATA, STRING_ERROR_DESC_DATA);
+  }
 }
 
 
@@ -205,6 +211,10 @@ static void handle_fast_sellers(DictionaryIterator *iterator) {
 
 
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
+  if (s_error_received) {
+    return;
+  }
+
   Tuple *message_type_tuple = dict_find(iterator, MESSAGE_KEY_MessageType);
 
   if (message_type_tuple) {
