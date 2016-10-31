@@ -104,9 +104,12 @@ function filterData() {
 function loadData() {
     var version = localStorage.getItem('version');
     if (parseInt(version) === DATA_FORMAT_VERSION) {
-        var storedData = localStorage.getItem('data');
-        data = JSON.parse(storedData);
-        filterData();
+        var timestamp = localStorage.getItem('timestamp');
+        if (parseFloat(timestamp) <= Date.now()) {
+            var storedData = localStorage.getItem('data');
+            data = JSON.parse(storedData);
+            filterData();
+        }
     }
 }
 
@@ -114,6 +117,7 @@ function storeData(newData) {
     data = newData;
     filterData();
     localStorage.setItem('version', DATA_FORMAT_VERSION);
+    localStorage.setItem('timestamp', Date.now());
     localStorage.setItem('data', JSON.stringify(data));
 }
 
