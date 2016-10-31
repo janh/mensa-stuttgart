@@ -25,6 +25,8 @@ static data_menu_category *s_menu_categories;
 static int32_t s_menu_meals_count;
 static data_menu_meal *s_menu_meals;
 
+static char s_menu_message[32];
+
 static int32_t s_fast_sellers_count;
 static data_fast_seller *s_fast_sellers;
 
@@ -94,6 +96,10 @@ data_menu_meal* data_get_menu_meal(int32_t index) {
   return NULL;
 }
 
+char* data_get_menu_message() {
+  return s_menu_message;
+}
+
 static void handle_menu_categories(DictionaryIterator *iterator) {
   clear_menu_categories();
 
@@ -152,10 +158,23 @@ static void handle_menu_meals(DictionaryIterator *iterator) {
   }
 }
 
+static void handle_menu_message(DictionaryIterator *iterator) {
+  Tuple *message_tuple = dict_find(iterator, MESSAGE_KEY_MenuMessage);
+
+  if (!message_tuple) {
+    window_stack_pop(false);
+    error_window_push(STRING_ERROR_TITLE_TRANSFER, STRING_ERROR_DESC_TRANSFER_INVALID_MESSAGE);
+    return;
+  }
+
+  util_string_copy(s_menu_message, message_tuple->value->cstring, sizeof(s_menu_message));
+}
+
 static void handle_menu(DictionaryIterator *iterator) {
   cancel_timer();
   handle_menu_categories(iterator);
   handle_menu_meals(iterator);
+  handle_menu_message(iterator);
   s_menu_received = true;
   if (s_menu_available_callback != NULL) {
     s_menu_available_callback();

@@ -49,5 +49,7 @@ data_menu_category* data_get_menu_category(int32_t index);
 int32_t data_get_menu_meal_count();
 data_menu_meal* data_get_menu_meal(int32_t index);
 
+char* data_get_menu_message();
+
 int32_t data_get_fast_seller_count();
 data_fast_seller* data_get_fast_seller(int32_t index);
