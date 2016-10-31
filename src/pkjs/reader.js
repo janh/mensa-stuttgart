@@ -42,6 +42,7 @@ function parseFeed(text, callback) {
         } catch (err) {
             console.log('Could not parse item: ' + err);
             callback(false, null);
+            return;
         }
     }
 
