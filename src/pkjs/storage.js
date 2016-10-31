@@ -9,7 +9,7 @@
 var reader = require('./reader');
 
 
-var DATA_FORMAT_VERSION = 1;
+var DATA_FORMAT_VERSION = 2;
 
 
 var cbError, cbMenu, cbFastSeller;
@@ -65,10 +65,10 @@ function currentMenu() {
     if (data.length > 0) {
         var now = Date.now() / 1000;
         if (now > data[0].date) {
-            return data[0].menu;
+            return { 'menu': data[0].menu, 'message': data[0].message };
         }
     }
-    return [];
+    return { 'menu': [], 'message': '' };
 }
 
 function fastSellers() {

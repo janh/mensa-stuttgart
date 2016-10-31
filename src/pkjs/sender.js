@@ -29,7 +29,9 @@ function sendMenu() {
     var dict = {};
     dict[keys.MessageType] = MESSAGE_TYPE_MENU;
 
-    var menu = storage.currentMenu();
+    var data = storage.currentMenu();
+    var menu = data.menu;
+
     dict[keys.MenuCategoriesCount] = menu.length;
 
     var mealCount = 0;
