@@ -21,5 +21,6 @@
 #define STRING_ERROR_DESC_DATA "Laden der Daten nicht möglich"
 
 #define STRING_MENU_NOT_AVAILABLE "Kein Angebot verfügbar"
+#define STRING_MENU_NOT_AVAILABLE_MESSAGE "Kein Angebot: %s"
 
 #define STRING_FORMAT_MEAL_PRICE "%s €  /  %s €"

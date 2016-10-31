@@ -23,6 +23,33 @@ static MenuLayer *s_menu_layer;
 static TextLayer *s_text_layer;
 static ProgressLayer *s_progress_layer;
 
+static char s_unavailable_text[48];
+
+
+static void update_unavailable_text() {
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+  int size_index = size_get_index();
+
+  char *message = data_get_menu_message();
+  if (strlen(message) > 0) {
+    snprintf(s_unavailable_text, sizeof(s_unavailable_text), STRING_MENU_NOT_AVAILABLE_MESSAGE, message);
+  } else {
+    snprintf(s_unavailable_text, sizeof(s_unavailable_text), STRING_MENU_NOT_AVAILABLE);
+  }
+
+  int16_t text_width = SIZE_UNAVAILABLE_WIDTH[size_index];
+  GRect rect = GRect((bounds.size.w - text_width) / 2, 0, text_width, bounds.size.h);
+  layer_set_frame(text_layer_get_layer(s_text_layer), rect);
+
+  text_layer_set_text(s_text_layer, s_unavailable_text);
+
+  GSize size = text_layer_get_content_size(s_text_layer);
+  rect.origin.y = (bounds.size.h - size.h) / 2 - 5;
+  rect.size.h = size.h + 10;
+  layer_set_frame(text_layer_get_layer(s_text_layer), rect);
+}
+
 
 static void progress_layer_hidden() {
   // exit if the window is already unloaded
@@ -41,6 +68,7 @@ static void progress_layer_hidden() {
     layer_set_hidden(menu_layer, false);
     util_layer_animation_slide_up(menu_layer);
   } else {
+    update_unavailable_text();
     layer_set_hidden(menu_layer, true);
     layer_set_hidden(text_layer, false);
     util_layer_animation_slide_up(text_layer);
@@ -152,18 +180,11 @@ static void window_load(Window *window) {
   layer_set_hidden(menu_layer_get_layer(s_menu_layer), true);
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 
-  int16_t text_width = SIZE_UNAVAILABLE_WIDTH[size_index];
-  GRect rect = GRect((bounds.size.w - text_width) / 2, 0, text_width, bounds.size.h);
-  s_text_layer = text_layer_create(rect);
+  s_text_layer = text_layer_create(bounds);
   text_layer_set_text_color(s_text_layer, COLOR_WINDOW_FOREGROUND);
   text_layer_set_font(s_text_layer, fonts_get_system_font(SIZE_UNAVAILABLE_FONT[size_index]));
   text_layer_set_text_alignment(s_text_layer, GTextAlignmentCenter);
-  text_layer_set_text(s_text_layer, STRING_MENU_NOT_AVAILABLE);
   layer_set_hidden(text_layer_get_layer(s_text_layer), true);
-  GSize size = text_layer_get_content_size(s_text_layer);
-  rect.origin.y = (bounds.size.h - size.h) / 2 - 5;
-  rect.size.h = size.h + 10;
-  layer_set_frame(text_layer_get_layer(s_text_layer), rect);
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
 
   s_progress_layer = progress_layer_create(bounds);
