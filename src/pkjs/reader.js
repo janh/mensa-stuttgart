@@ -38,7 +38,8 @@ function parseFeed(text, callback) {
             var description = items[i].findElementsByName('description')[0].content();
             var date = parseDate(title);
             var menu = parseMenu(description);
-            data.push({ 'date': date, 'menu': menu });
+            var message = parseMessage(menu);
+            data.push({ 'date': date, 'menu': ((message.length == 0) ? menu : []), 'message': message });
         } catch (err) {
             console.log('Could not parse item: ' + err);
             callback(false, null);
@@ -111,6 +112,25 @@ function parseMenu(text) {
     }
 
     return menu;
+}
+
+function parseMessage(menu) {
+    var message = null;
+
+    for (var i = 0; i < menu.length; i++) {
+        var category = menu[i];
+        var meals = category.meals;
+        for (var j = 0; j < meals.length; j++) {
+            var meal = meals[j];
+            if (message == null) {
+                message = meal.title;
+            } else if (message != meal.title) {
+                return '';
+            }
+        }
+    }
+
+    return message;
 }
 
 
