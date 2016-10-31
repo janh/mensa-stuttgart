@@ -31,6 +31,9 @@ function sendMenu() {
 
     var data = storage.currentMenu();
     var menu = data.menu;
+    var message = data.message;
+
+    dict[keys.MenuMessage] = message;
 
     dict[keys.MenuCategoriesCount] = menu.length;
 

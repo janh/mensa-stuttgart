@@ -30,6 +30,7 @@
       "MenuMealsTitleStart": 2100,
       "MenuMealsPriceStudentStart": 2200,
       "MenuMealsPriceGuestStart": 2300,
+      "MenuMessage": 4000,
       "FastSellersCount": 3000,
       "FastSellersTitleStart": 3100,
       "FastSellersDateStart": 3200
