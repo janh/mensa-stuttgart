@@ -18,6 +18,9 @@
 #include <inttypes.h>
 
 
+static const GTextAlignment TEXT_ALIGNMENT_MENU = PBL_IF_RECT_ELSE(GTextAlignmentLeft, GTextAlignmentCenter);
+
+
 static Window *s_main_window;
 static MenuLayer *s_menu_layer;
 static TextLayer *s_text_layer;
@@ -104,7 +107,7 @@ static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index
                      SIZE_MEAL_MAX_HEIGHT[size_index]);
 
   GSize size = graphics_text_layout_get_content_size(meal->title, fonts_get_system_font(SIZE_MEAL_FONT[size_index]),
-                                                     rect, GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
+                                                     rect, GTextOverflowModeTrailingEllipsis, TEXT_ALIGNMENT_MENU);
 
   return size.h + SIZE_PRICE_HEIGHT[size_index];
 }
@@ -128,7 +131,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
                bounds.size.h - SIZE_PRICE_HEIGHT[size_index]);
 
   graphics_draw_text(ctx, meal->title, fonts_get_system_font(SIZE_MEAL_FONT[size_index]),
-                     rect, GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+                     rect, GTextOverflowModeTrailingEllipsis, TEXT_ALIGNMENT_MENU, NULL);
 
   char price[24];
   snprintf(price, sizeof(price), STRING_FORMAT_MEAL_PRICE, meal->price_student, meal->price_guest);
@@ -139,7 +142,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
                SIZE_PRICE_OFFSET[size_index]);
 
   graphics_draw_text(ctx, price, fonts_get_system_font(SIZE_PRICE_FONT[size_index]),
-                     rect, GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+                     rect, GTextOverflowModeTrailingEllipsis, TEXT_ALIGNMENT_MENU, NULL);
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
@@ -154,7 +157,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
                      SIZE_CATEGORY_HEIGHT[size_index] - SIZE_CATEGORY_OFFSET[size_index]);
 
   graphics_draw_text(ctx, category->title, fonts_get_system_font(SIZE_CATEGORY_FONT[size_index]),
-                     rect, GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+                     rect, GTextOverflowModeTrailingEllipsis, TEXT_ALIGNMENT_MENU, NULL);
 }
 
 
@@ -165,7 +168,11 @@ static void window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
   int size_index = size_get_index();
 
-  s_menu_layer = menu_layer_create(bounds);
+  GRect bounds_menu = bounds;
+  #ifdef PBL_ROUND
+    bounds_menu.size.h += SIZE_CATEGORY_HEIGHT[size_index] / 2;
+  #endif
+  s_menu_layer = menu_layer_create(bounds_menu);
   menu_layer_set_normal_colors(s_menu_layer, COLOR_MENU_NORMAL_BACKGROUND, COLOR_MENU_NORMAL_FOREGROUND);
   menu_layer_set_highlight_colors(s_menu_layer, COLOR_MENU_HIGHLIGHT_BACKGROUND, COLOR_MENU_HIGHLIGHT_FOREGROUND);
   menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks){

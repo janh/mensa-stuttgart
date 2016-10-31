@@ -18,19 +18,19 @@
 #endif
 
 
-const int16_t SIZE_MENU_MARGIN_LEFT[3] = {PBL_IF_RECT_ELSE(6, 24),
-                                          IF_LARGE_ELSE(PBL_IF_RECT_ELSE(8, 26), PBL_IF_RECT_ELSE(4, 22)),
+const int16_t SIZE_MENU_MARGIN_LEFT[3] = {PBL_IF_RECT_ELSE(6, 21),
+                                          IF_LARGE_ELSE(PBL_IF_RECT_ELSE(8, 22), PBL_IF_RECT_ELSE(4, 20)),
                                           8};
 const int16_t SIZE_MENU_MARGIN_RIGHT[3] = {PBL_IF_RECT_ELSE(3, 21),
                                            IF_LARGE_ELSE(PBL_IF_RECT_ELSE(4, 22), PBL_IF_RECT_ELSE(2, 20)),
                                            4};
 
 const char *SIZE_CATEGORY_FONT[3] = {FONT_KEY_GOTHIC_14_BOLD, FONT_KEY_GOTHIC_18_BOLD, FONT_KEY_GOTHIC_24_BOLD};
-const int16_t SIZE_CATEGORY_OFFSET[3] = {2, 2, 2};
-const int16_t SIZE_CATEGORY_HEIGHT[3] = {20, 26, 32};
+const int16_t SIZE_CATEGORY_OFFSET[3] = {PBL_IF_RECT_ELSE(2, 7), PBL_IF_RECT_ELSE(2, 7), 2};
+const int16_t SIZE_CATEGORY_HEIGHT[3] = {PBL_IF_RECT_ELSE(20, 25), PBL_IF_RECT_ELSE(26, 31), 32};
 
 const char *SIZE_MEAL_FONT[3] = {FONT_KEY_GOTHIC_18, FONT_KEY_GOTHIC_24, FONT_KEY_GOTHIC_28};
-const int16_t SIZE_MEAL_MAX_HEIGHT[3] = {PBL_IF_RECT_ELSE(72, 54), PBL_IF_RECT_ELSE(72, 48), 84};
+const int16_t SIZE_MEAL_MAX_HEIGHT[3] = {72, 72, 84};
 
 const char *SIZE_PRICE_FONT[3] = {FONT_KEY_GOTHIC_14, FONT_KEY_GOTHIC_18, FONT_KEY_GOTHIC_24};
 const int16_t SIZE_PRICE_HEIGHT[3] = {25, 32, 38};
