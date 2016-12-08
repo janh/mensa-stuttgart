@@ -30,3 +30,10 @@
 ### Bug Fixes
 
 * Prevent crash in watchapp when a parsing error occurs
+
+
+## 1.3 (2016-12-08)
+
+### Improvements
+
+* Activate backlight when result or error is shown
