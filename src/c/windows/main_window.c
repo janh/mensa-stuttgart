@@ -60,6 +60,8 @@ static void progress_layer_hidden() {
     return;
   }
 
+  light_enable_interaction();
+
   window_set_background_color(s_main_window, COLOR_WINDOW_BACKGROUND);
 
   Layer *menu_layer = menu_layer_get_layer(s_menu_layer);

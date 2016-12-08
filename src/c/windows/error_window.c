@@ -97,6 +97,8 @@ static void window_appear(Window *window) {
   PropertyAnimation *property_anim = property_animation_create_layer_frame(s_background_layer, &start, &end);
   Animation *anim = property_animation_get_animation(property_anim);
   animation_schedule(anim);
+
+  light_enable_interaction();
 }
 
 
