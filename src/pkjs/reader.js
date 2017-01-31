@@ -95,6 +95,10 @@ function parseMenu(text) {
             if (columns.length == 1) {
                 // category
                 var title = columns[0].content();
+                var classes = rows[i].attributes()["class"];
+                if (classes !== undefined && classes.indexOf("field_cntn_mn_ml_plt") != -1) {
+					title = "Preisrenner";
+				}
                 category = { 'title': title, 'meals': [] };
                 menu.push(category);
             } else if (columns.length == 4) {
