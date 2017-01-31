@@ -37,3 +37,10 @@
 ### Improvements
 
 * Activate backlight when result or error is shown
+
+
+## 1.4 (2017-01-31)
+
+### Improvements
+
+* Support new "Preisrenner" instead of fast seller
