@@ -9,7 +9,7 @@
 var reader = require('./reader');
 
 
-var DATA_FORMAT_VERSION = 3;
+var DATA_FORMAT_VERSION = 4;
 
 
 var cbError, cbMenu, cbFastSeller;

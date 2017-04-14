@@ -126,10 +126,12 @@ function parseMessage(menu) {
         var meals = category.meals;
         for (var j = 0; j < meals.length; j++) {
             var meal = meals[j];
-            if (message == null) {
-                message = meal.title;
-            } else if (message != meal.title) {
-                return '';
+            if (meal.title != '//' && meal.title != '') {
+                if (message == null) {
+                    message = meal.title;
+                } else if (message != meal.title) {
+                    return '';
+                }
             }
         }
     }
