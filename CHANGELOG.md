@@ -44,3 +44,10 @@
 ### Improvements
 
 * Support new "Preisrenner" instead of fast seller
+
+
+## 1.5 (2017-04-14)
+
+### Improvements
+
+* Update holiday detection
