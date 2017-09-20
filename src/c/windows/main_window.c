@@ -15,6 +15,7 @@
 #include "../lib/size.h"
 
 #include <pebble.h>
+#include <stdbool.h>
 #include <inttypes.h>
 
 
@@ -25,6 +26,9 @@ static Window *s_main_window;
 static MenuLayer *s_menu_layer;
 static TextLayer *s_text_layer;
 static ProgressLayer *s_progress_layer;
+
+static bool s_progress_layer_visible;
+static bool s_progress_layer_animating;
 
 static char s_unavailable_text[48];
 
@@ -54,7 +58,7 @@ static void update_unavailable_text() {
 }
 
 
-static void progress_layer_hidden() {
+static void update_content_layers(bool animate) {
   // exit if the window is already unloaded
   if (s_main_window == NULL) {
     return;
@@ -71,17 +75,32 @@ static void progress_layer_hidden() {
     menu_layer_reload_data(s_menu_layer);
     layer_set_hidden(text_layer, true);
     layer_set_hidden(menu_layer, false);
-    util_layer_animation_slide_up(menu_layer);
+    if (animate) {
+      util_layer_animation_slide_up(menu_layer);
+    }
   } else {
     update_unavailable_text();
     layer_set_hidden(menu_layer, true);
     layer_set_hidden(text_layer, false);
-    util_layer_animation_slide_up(text_layer);
+    if (animate) {
+      util_layer_animation_slide_up(text_layer);
+    }
   }
 }
 
+static void progress_layer_hidden() {
+  update_content_layers(true);
+  s_progress_layer_animating = false;
+}
+
 static void menu_available() {
-  progress_layer_hide(s_progress_layer, true, &progress_layer_hidden);
+  if (s_progress_layer_visible) {
+    s_progress_layer_visible = false;
+    s_progress_layer_animating = true;
+    progress_layer_hide(s_progress_layer, true, &progress_layer_hidden);
+  } else if (!s_progress_layer_animating) {
+    update_content_layers(false);
+  }
 }
 
 
@@ -198,6 +217,8 @@ static void window_load(Window *window) {
 
   s_progress_layer = progress_layer_create(bounds);
   layer_add_child(window_layer, s_progress_layer);
+  s_progress_layer_visible = true;
+  s_progress_layer_animating = false;
 }
 
 static void window_unload(Window *window) {
@@ -214,6 +235,8 @@ static void window_appear(Window *window) {
 }
 
 static void window_disappear(Window *window) {
+  s_progress_layer_visible = false;
+  s_progress_layer_animating = false;
   progress_layer_hide(s_progress_layer, false, NULL);
 }
 
