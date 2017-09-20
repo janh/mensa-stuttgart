@@ -168,6 +168,8 @@ function decodeEntities(text) {
         'apos': "'",
         'lt': '<',
         'gt': '>',
+        'nbsp': ' ',
+        'euro': '€',
     };
 
     text = text.replace(/&([a-z]+);/g, function(match, p1, offset, string) {
