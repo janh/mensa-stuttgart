@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jan Hoffmann
+ * Copyright (c) 2017 Jan Hoffmann
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,137 +7,196 @@
  */
 
 var parser = require('./parser');
+var time = require('./time');
 
 
-function readMenu(callback) {
+function updateMenuData(data, callback) {
+    if (data == null) {
+        data = [];
+    }
+
+    var day = new time.Day();
+    var dayCount = 0;
+
+    var menu = getMenu(data, day);
+    if (getAge(menu) > 300) {
+        loadDay(data, day, dayCount, callback);
+    } else {
+        loadNextDay(data, day, dayCount, callback);
+    }
+}
+
+function getMenu(data, day) {
+    var timestamp = day.getUTCTimestamp();
+
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].date == timestamp) {
+            var menu = data[i];
+            return menu;
+        }
+    }
+
+    return null;
+}
+
+function getAge(menu) {
+    if (menu != null) {
+        return time.now() - menu.loadtime;
+    }
+    return 365 * 86400;
+}
+
+function loadDay(data, day, dayCount, callback) {
     var request = new XMLHttpRequest();
 
     request.onload = function() {
-        parseFeed(this.responseText, callback);
+        parseMenu(data, day, dayCount, this.responseText, callback);
     };
 
     request.onerror = function() {
         console.log('Error while loading data.');
-        callback(false, null);
+        callback(day, false, data);
     }
 
-    request.open('GET', 'https://www.studierendenwerk-stuttgart.de/speiseangebot_rss');
-    request.send();
+    request.ontimeout = function() {
+        console.log('Timeout while loading data.');
+        callback(day, false, data);
+    }
+
+    var location = 2;
+    var dateString = day.toString();
+    var params = 'func=make_spl&locId=' + encodeURIComponent(location) + '&date=' + encodeURIComponent(dateString) + '&lang=de';
+
+    request.timeout = 30000;
+    request.open('POST', 'https://sws2.maxmanager.xyz/inc/ajax-php_konnektor.inc.php');
+    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    request.send(params);
 }
 
-function parseFeed(text, callback) {
-    var data = [];
+function loadNextDay(data, day, dayCount, callback) {
+    day = day.nextDay();
+    dayCount++;
+    while (!day.isWeekday()) {
+        day = day.nextDay();
+        dayCount++;
+    }
 
-    var feed = parser.parseString(text);
-
-    var items = feed.findElementsByName('item');
-    for (var i = 0; i < items.length; i++) {
-        try {
-            var item = items[i];
-            var title = items[i].findElementsByName('title')[0].content();
-            var description = items[i].findElementsByName('description')[0].content();
-            var date = parseDate(title);
-            var menu = parseMenu(description);
-            var message = parseMessage(menu);
-            data.push({ 'date': date, 'menu': ((message.length == 0) ? menu : []), 'message': message });
-        } catch (err) {
-            console.log('Could not parse item: ' + err);
-            callback(false, null);
-            return;
+    if (dayCount < 7) {
+        var menu = getMenu(data, day);
+        if (menu == null || (menu.menu.length == 0 && getAge(menu) > 86400)) {
+            loadDay(data, day, dayCount, callback);
+        } else {
+            loadNextDay(data, day, dayCount, callback);
         }
     }
-
-    callback(true, data);
 }
 
-function parseDate(text) {
-    var months = {
-        'Januar': 0,
-        'Februar': 1,
-        'März': 2,
-        'April': 3,
-        'Mai': 4,
-        'Juni': 5,
-        'Juli': 6,
-        'August': 7,
-        'September': 8,
-        'Oktober': 9,
-        'November': 10,
-        'Dezember': 11,
-    };
-
-    var result = /([0-9]{1,2})\.\s+([^\s]+)\s+([0-9]{4})/.exec(text);
-    if (result == null) {
-        throw 'Date not found.';
-    }
-
-    var day = parseInt(result[1]);
-    var month = (result[2] in months) ? months[result[2]] : 0;
-    var year = parseInt(result[3]);
-
-    // set hour to -1 to compensate for timezone (standard time only, one hour off for daylight saving)
-    var date = Date.UTC(year, month, day, -1) / 1000;
-    return date;
-}
-
-function parseMenu(text) {
-    var menu = [];
-    var category = null;
-
-    var table = parser.parseString(text);
+function parseMenu(data, day, dayCount, text, callback) {
     try {
-        var tbody = table.findElementsByName('tbody')[0];
-        var rows = tbody.findElementsByName('tr');
+        var content = parser.parseString(text);
+        var rows = content.findElementsByNameAndTag('div', 'row');
+
+        var menu = [];
+        var message = '';
+
+        var category = null;
 
         for (var i = 0; i < rows.length; i++) {
-            var columns = rows[i].findElementsByName('td');
+            var row = rows[i];
+            var classes = row.classes();
 
-            if (columns.length == 1) {
+            if (classes.indexOf('gruppenkopf') != -1) {
                 // category
-                var title = columns[0].content();
-                var classes = rows[i].attributes()["class"];
-                if (classes !== undefined && classes.indexOf("field_cntn_mn_ml_plt") != -1) {
-                    title = "Preisrenner";
-                }
-                category = { 'title': title, 'meals': [] };
+                category = parseCategory(row);
                 menu.push(category);
-            } else if (columns.length == 4) {
+            } else if (classes.indexOf('splMeal') != -1) {
                 // meal
-                var title = columns[0].content();
-                var priceStudent = columns[1].content();
-                var priceGuest = columns[2].content();
-                category.meals.push({ 'title': title, 'priceStudent': priceStudent, 'priceGuest': priceGuest });
-            } else {
-                throw 'Unexpected table format: row with ' + columns.length + ' columns';
+                var meal = parseMeal(row);
+                if (category != null) {
+                    category.meals.push(meal);
+                } else {
+                    throw 'Unexpected data format: found meal without category';
+                }
+            } else if (classes.indexOf('nodata') != -1) {
+                // message
+                message = parseMessage(row);
             }
+        }
+
+        var timestamp = day.getUTCTimestamp();
+        var menu = { 'date': timestamp, 'loadtime': time.now(), 'menu': menu, 'message': message };
+
+        var replaced = false;
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].date == timestamp) {
+                data[i] = menu;
+                replaced = true;
+                break;
+            }
+        }
+
+        if (!replaced) {
+            data.push(menu);
         }
     } catch (err) {
-        throw 'Error parsing meal table: ' + err;
+        console.log('Could not parse item: ' + err);
+        callback(day, false, data);
+        return;
     }
 
-    return menu;
+    callback(day, true, data);
+
+    loadNextDay(data, day, dayCount, callback);
 }
 
-function parseMessage(menu) {
-    var message = null;
+function parseCategory(row) {
+    try {
+        var title = row.findElementsByNameAndTag('div', 'gruppenname')[0].content();
+        var category = { 'title': title, 'meals': [] };
+        return category;
+    } catch (err) {
+        throw 'Error parsing category: ' + err;
+    }
+}
 
-    for (var i = 0; i < menu.length; i++) {
-        var category = menu[i];
-        var meals = category.meals;
-        for (var j = 0; j < meals.length; j++) {
-            var meal = meals[j];
-            if (meal.title != '//' && meal.title != '') {
-                if (message == null) {
-                    message = meal.title;
-                } else if (message != meal.title) {
-                    return '';
+function parseMeal(row) {
+    try {
+        var title = row.findElementsByNameAndTag('div', 'visible-xs-block')[0].content();
+
+        var priceColumn = row.findElementsByNameAndTag('div', 'preise-xs')[0];
+
+        var prices = priceColumn.findElementsByName('div')[0].content();
+        prices = prices.replace(/[€\s]/g, '');
+        prices = prices.split('/');
+
+        var priceStudent = prices[0] + ' €';
+        var priceGuest = prices[1] + ' €';
+
+        var fastSellerIcon = priceColumn.findElementsByFilter(function(element) {
+            if (element.name() == 'img') {
+                var src = element.attributes()['src'];
+                if (src !== undefined && src.substr(-5) == 'P.png') {
+                    return true;
                 }
             }
-        }
-    }
+            return false;
+        });
+        var fastSeller = (fastSellerIcon.length > 0);
 
-    return message;
+        return { 'title': title, 'priceStudent': priceStudent, 'priceGuest': priceGuest, 'fastSeller': fastSeller };
+    } catch (err) {
+        throw 'Error parsing meal: ' + err;
+    }
+}
+
+function parseMessage(row) {
+    try {
+        var message = row.findElementsByNameAndTag('div', 'col-xs-12')[0].content();
+        return message;
+    } catch (err) {
+        throw 'Error parsing message: ' + err;
+    }
 }
 
 
-module.exports.readMenu = readMenu;
+module.exports.updateMenuData = updateMenuData;

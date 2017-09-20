@@ -7,9 +7,10 @@
  */
 
 var reader = require('./reader');
+var time = require('./time');
 
 
-var DATA_FORMAT_VERSION = 4;
+var DATA_FORMAT_VERSION = 5;
 
 
 var cbError, cbMenu, cbFastSeller;
@@ -26,45 +27,48 @@ function init(callbackError, callbackMenu, callbackFastSeller) {
     cbFastSeller = callbackFastSeller;
 
     loadData();
-    if (data != null) {
-        if (data.length > 0) {
+
+    if (data != null && data.length > 0) {
+        var day = new time.Day();
+        if (day.getUTCTimestamp() == data[0].date || !day.isWeekday()) {
             menuReady = true;
             cbMenu();
         }
-        if (data.length >= 5) {
-            fastSellersReady = true;
-            cbFastSeller();
-        }
+
+        fastSellersReady = true;
+        cbFastSeller();
     }
-    if (!menuReady || !fastSellersReady) {
-        reader.readMenu(readerCallback);
-    }
+
+    reader.updateMenuData(data, readerCallback);
 }
 
-function readerCallback(success, data) {
+function readerCallback(day, success, data) {
     if (success) {
         storeData(data);
-        if (!menuReady) {
+
+        var today = new time.Day();
+        if (today.getUTCTimestamp() == day.getUTCTimestamp()) {
             menuReady = true;
             cbMenu();
         }
-        if (!fastSellersReady) {
-            fastSellersReady = true;
-            cbFastSeller();
-        }
+
+        fastSellersReady = true;
+        cbFastSeller();
     } else {
-        cbError();
+        if (!menuReady) {
+            cbError();
+        }
     }
 }
-
 
 function currentMenu() {
     if (!menuReady) {
         return null;
     }
     if (data.length > 0) {
-        var now = Date.now() / 1000;
-        if (now > data[0].date) {
+        var day = new time.Day();
+        var timestamp = day.getUTCTimestamp();
+        if (timestamp == data[0].date) {
             return { 'menu': data[0].menu, 'message': data[0].message };
         }
     }
@@ -75,18 +79,20 @@ function fastSellers() {
     if (!fastSellersReady) {
         return null;
     }
-    var regexpFastSeller = /renner/i;
     var list = [];
     for (var i = 0; i < data.length; i++) {
         var day = data[i];
         var menu = day.menu;
+        loop_menu:
         for (var j = 0; j < menu.length; j++) {
             var category = menu[j];
-            if (category.title.search(regexpFastSeller) != -1) {
-                if (category.meals.length > 0) {
-                    list.push({ 'date': day.date, 'title': category.meals[0].title });
+            var meals = category.meals;
+            for (var k = 0; k < meals.length; k++) {
+                var meal = meals[k];
+                if (meal.fastSeller == true) {
+                    list.push({ 'date': day.date, 'title': meal.title });
+                    break loop_menu;
                 }
-                break;
             }
         }
     }
@@ -95,7 +101,8 @@ function fastSellers() {
 
 
 function filterData() {
-    var cutoff = Date.now() / 1000 - 86400;
+    var day = new time.Day();
+    var cutoff = day.getUTCTimestamp();
     while (data.length > 0 && data[0].date < cutoff) {
         data.shift();
     }
@@ -105,7 +112,7 @@ function loadData() {
     var version = localStorage.getItem('version');
     if (parseInt(version) === DATA_FORMAT_VERSION) {
         var timestamp = localStorage.getItem('timestamp');
-        if (parseFloat(timestamp) <= Date.now()) {
+        if (parseFloat(timestamp) <= time.now()) {
             var storedData = localStorage.getItem('data');
             data = JSON.parse(storedData);
             filterData();
@@ -117,7 +124,7 @@ function storeData(newData) {
     data = newData;
     filterData();
     localStorage.setItem('version', DATA_FORMAT_VERSION);
-    localStorage.setItem('timestamp', Date.now());
+    localStorage.setItem('timestamp', time.now());
     localStorage.setItem('data', JSON.stringify(data));
 }
 
