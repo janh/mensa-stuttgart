@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jan Hoffmann
+ * Copyright (c) 2017 Jan Hoffmann
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,6 +10,7 @@
 function Element(name, attributes) {
     this._name = name;
     this._attributes = attributes;
+    this._classes = null;
     this._children = [];
 }
 
@@ -25,22 +26,50 @@ Element.prototype = {
         return this._attributes;
     },
 
+    classes: function() {
+        if (this._classes == null) {
+            this._classes = [];
+            var classString = this._attributes['class'];
+            if (classString !== undefined) {
+                classString = classString.replace(/^\s+|\s+$/g, '');
+                if (classString.length > 0) {
+                    this._classes = classString.split(/\s+/g);
+                }
+            }
+        }
+        return this._classes;
+    },
+
     children: function() {
         return this._children;
     },
 
-    findElementsByName: function(name) {
+    findElementsByFilter: function(filter) {
         var elements = [];
-        if (this._name == name) {
+        if (filter(this)) {
             elements.push(this);
         }
         for (var i = 0; i < this._children.length; i++)  {
             var child = this._children[i];
             if (child instanceof Element) {
-                elements = elements.concat(child.findElementsByName(name));
+                elements = elements.concat(child.findElementsByFilter(filter));
             }
         }
         return elements;
+    },
+
+    findElementsByName: function(name) {
+        var filter = function(element) {
+            return (element.name() == name);
+        };
+        return this.findElementsByFilter(filter);
+    },
+
+    findElementsByNameAndTag: function(name, tag) {
+        var filter = function(element) {
+            return (element.name() == name && element.classes().indexOf(tag) != -1);
+        };
+        return this.findElementsByFilter(filter);
     },
 
     content: function() {
