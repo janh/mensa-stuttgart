@@ -5,6 +5,7 @@
 #
 import os.path
 import json
+import re
 
 top = '.'
 out = 'build'
@@ -70,7 +71,10 @@ def generate_html(task):
         with file(path) as f:
             content = f.read()
 
-        exports[name] = ' '.join(content.split())
+        content = re.sub(r'\s*\n\s*', '\n', content, flags = re.MULTILINE)
+        content = re.sub(r'[ \t\r\f\v]+', ' ', content, flags = re.MULTILINE)
+
+        exports[name] = content
 
     with open(target, 'w') as f:
             f.write('module.exports = ' + json.dumps(exports) + ';\n')
