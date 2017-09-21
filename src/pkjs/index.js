@@ -61,8 +61,10 @@ Pebble.addEventListener("showConfiguration",
 
 Pebble.addEventListener("webviewclosed",
     function(e) {
-        var data = decodeURIComponent(e.response);
-        var location = parseInt(data);
-        storage.setLocation(location);
+        if (e.response != undefined) {
+            var data = decodeURIComponent(e.response);
+            var location = parseInt(data);
+            storage.setLocation(location);
+        }
     }
 );
