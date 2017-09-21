@@ -102,6 +102,10 @@ function fastSellers() {
 }
 
 
+function getLocation() {
+    return location;
+}
+
 function setLocation(newLocation) {
     if (newLocation != location) {
         location = newLocation
@@ -169,4 +173,5 @@ function store() {
 module.exports.init = init;
 module.exports.currentMenu = currentMenu;
 module.exports.fastSellers = fastSellers;
+module.exports.getLocation = getLocation;
 module.exports.setLocation = setLocation;

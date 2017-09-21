@@ -8,6 +8,7 @@
 
 var storage = require('./storage');
 var sender = require('./sender');
+var html = require('html');
 
 
 var appReady = false;
@@ -47,3 +48,21 @@ function fastSellersHandler() {
 
 
 storage.init(errorHandler, menuHandler, fastSellersHandler);
+
+
+Pebble.addEventListener("showConfiguration",
+    function() {
+        var content = html.config;
+        content = content.replace('{{LOCATION}}', storage.getLocation());
+        var url = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+        Pebble.openURL(url);
+    }
+);
+
+Pebble.addEventListener("webviewclosed",
+    function(e) {
+        var data = decodeURIComponent(e.response);
+        var location = parseInt(data);
+        storage.setLocation(location);
+    }
+);

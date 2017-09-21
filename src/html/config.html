@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2017 Jan Hoffmann
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+<html>
+    <head>
+        <title>Mensa Stuttgart</title>
+        <style type="text/css">
+            * {
+                color: #fff;
+                font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
+                line-height: 1.5em;
+                outline: none;
+                -webkit-tap-highlight-color: none;
+            }
+            html, body {
+                background: #333;
+                font-size: 12pt;
+            }
+            body {
+                padding: 1em;
+            }
+            h1 {
+                font-size: 1.8em;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin: 0;
+            }
+            div {
+                background: #484848;
+                border-radius: .25em;
+                box-shadow: 0 .1em .5em #303030;
+            }
+            div > *:first-child {
+                border-radius: .25rem .25rem 0 0;
+            }
+            div > *:last-child {
+                border-radius: 0 0 .25rem .25rem;
+            }
+            div > ul:last-child > li:last-child a {
+                border-radius: 0 0 .25rem .25rem;
+            }
+            h2 {
+                font-size: 1.3em;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin: 1em 0 0 0;
+                padding: .6rem .8rem;
+                background: #414141;
+            }
+            ul {
+                margin: 0;
+            }
+            li {
+                list-style-type: none;
+                border-top: 1px solid #666;
+                border-image: linear-gradient(90deg, #484848 .6rem, #666 .6rem, #666 calc(100% - .6rem), #484848 calc(100% - .6rem));
+                border-image-slice: 1;
+            }
+            li:first-child {
+                border-top: none;
+            }
+            li a {
+                display: block;
+                text-decoration: none;
+                padding: .6rem .8rem;
+                -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+            }
+            li a:active {
+                background: rgba(255, 255, 255, 0.1);
+                -webkit-tap-highlight-color: none;
+            }
+            li a:before {
+                content: " ";
+                display: block;
+                float: left;
+                margin: .25em .7em 0 0;
+                vertical-align: center;
+                line-height: 1em;
+                width: 1em;
+                height: 1em;
+                border-radius: .5em;
+                background: radial-gradient(circle at center, transparent .38em, #888 .43em);
+            }
+            li a.selected:before {
+                background: radial-gradient(circle at center, #ff4500 .2em, transparent .25em, transparent .38em, #888 .43em);
+            }
+        </style>
+        <script type="text/javascript">
+            var selectedItem = '{{LOCATION}}';
+
+            function updateSelection() {
+                var items = document.querySelectorAll('a');
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var itemId = item.getAttribute('data-id');
+                    if (itemId == selectedItem) {
+                        item.classList.add('selected');
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                }
+            }
+            
+            function exit() {
+                var returnTo = 'pebblejs://close#' + selectedItem;
+                location.href = returnTo;
+            }
+
+            function itemClicked(e) {
+                e.preventDefault();
+                var item = e.target;
+                var itemId = item.getAttribute('data-id');
+                selectedItem = itemId;
+                updateSelection();
+                exit();
+            }
+
+            function loaded() {
+                updateSelection();
+                
+                var items = document.querySelectorAll('a');
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    item.addEventListener('click', itemClicked);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', loaded);
+        </script>
+    </head>
+    <body>
+
+        <h1>Mensa Stuttgart</h1>
+
+        <div>
+            <h2>Ort auswählen</h2>
+            <ul>
+                <li><a href="#" data-id="3">Stuttgart-Mitte</a></li>
+                <li><a href="#" data-id="4">Musikhochschule</a></li>
+                <li><a href="#" data-id="7">Kunstakademie</a></li>
+                <li><a href="#" data-id="2">Stuttgart-Vaihingen</a></li>
+                <li><a href="#" data-id="1">Ludwigsburg</a></li>
+                <li><a href="#" data-id="6">Esslingen Flandernstraße</a></li>
+                <li><a href="#" data-id="9">Esslingen Stadtmitte</a></li>
+            </ul>
+        </div>
+
+    </body>
+</html>
