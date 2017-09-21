@@ -10,7 +10,7 @@ var parser = require('./parser');
 var time = require('./time');
 
 
-function updateMenuData(data, callback) {
+function updateMenuData(data, location, callback) {
     if (data == null) {
         data = [];
     }
@@ -20,9 +20,9 @@ function updateMenuData(data, callback) {
 
     var menu = getMenu(data, day);
     if (getAge(menu) > 300) {
-        loadDay(data, day, dayCount, callback);
+        loadDay(data, location, day, dayCount, callback);
     } else {
-        loadNextDay(data, day, dayCount, callback);
+        loadNextDay(data, location, day, dayCount, callback);
     }
 }
 
@@ -46,11 +46,11 @@ function getAge(menu) {
     return 365 * 86400;
 }
 
-function loadDay(data, day, dayCount, callback) {
+function loadDay(data, location, day, dayCount, callback) {
     var request = new XMLHttpRequest();
 
     request.onload = function() {
-        parseMenu(data, day, dayCount, this.responseText, callback);
+        parseMenu(data, location, day, dayCount, this.responseText, callback);
     };
 
     request.onerror = function() {
@@ -63,7 +63,6 @@ function loadDay(data, day, dayCount, callback) {
         callback(day, false, data);
     }
 
-    var location = 2;
     var dateString = day.toString();
     var params = 'func=make_spl&locId=' + encodeURIComponent(location) + '&date=' + encodeURIComponent(dateString) + '&lang=de';
 
@@ -73,7 +72,7 @@ function loadDay(data, day, dayCount, callback) {
     request.send(params);
 }
 
-function loadNextDay(data, day, dayCount, callback) {
+function loadNextDay(data, location, day, dayCount, callback) {
     day = day.nextDay();
     dayCount++;
     while (!day.isWeekday()) {
@@ -84,14 +83,14 @@ function loadNextDay(data, day, dayCount, callback) {
     if (dayCount < 7) {
         var menu = getMenu(data, day);
         if (menu == null || (menu.menu.length == 0 && getAge(menu) > 86400)) {
-            loadDay(data, day, dayCount, callback);
+            loadDay(data, location, day, dayCount, callback);
         } else {
-            loadNextDay(data, day, dayCount, callback);
+            loadNextDay(data, location, day, dayCount, callback);
         }
     }
 }
 
-function parseMenu(data, day, dayCount, text, callback) {
+function parseMenu(data, location, day, dayCount, text, callback) {
     try {
         var content = parser.parseString(text);
         var rows = content.findElementsByNameAndTag('div', 'row');
@@ -146,7 +145,7 @@ function parseMenu(data, day, dayCount, text, callback) {
 
     callback(day, true, data);
 
-    loadNextDay(data, day, dayCount, callback);
+    loadNextDay(data, location, day, dayCount, callback);
 }
 
 function parseCategory(row) {

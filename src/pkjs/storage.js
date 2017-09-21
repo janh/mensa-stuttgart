@@ -10,7 +10,7 @@ var reader = require('./reader');
 var time = require('./time');
 
 
-var DATA_FORMAT_VERSION = 5;
+var DATA_FORMAT_VERSION = 6;
 
 
 var cbError, cbMenu, cbFastSeller;
@@ -20,13 +20,15 @@ var fastSellersReady = false;
 
 var data = null;
 
+var location = 2;
+
 
 function init(callbackError, callbackMenu, callbackFastSeller) {
     cbError = callbackError;
     cbMenu = callbackMenu;
     cbFastSeller = callbackFastSeller;
 
-    loadData();
+    load();
 
     if (data != null && data.length > 0) {
         var day = new time.Day();
@@ -39,12 +41,12 @@ function init(callbackError, callbackMenu, callbackFastSeller) {
         cbFastSeller();
     }
 
-    reader.updateMenuData(data, readerCallback);
+    reader.updateMenuData(data, location, readerCallback);
 }
 
 function readerCallback(day, success, data) {
     if (success) {
-        storeData(data);
+        setData(data);
 
         var today = new time.Day();
         if (today.getUTCTimestamp() == day.getUTCTimestamp()) {
@@ -100,6 +102,27 @@ function fastSellers() {
 }
 
 
+function setLocation(newLocation) {
+    if (newLocation != location) {
+        location = newLocation
+
+        data = [];
+        menuReady = false;
+        fastSellersReady = false;
+
+        store();
+
+        reader.updateMenuData(data, location, readerCallback);
+    }
+}
+
+function setData(newData) {
+    data = newData;
+    filterData();
+    store();
+}
+
+
 function filterData() {
     var day = new time.Day();
     var cutoff = day.getUTCTimestamp();
@@ -108,22 +131,36 @@ function filterData() {
     }
 }
 
-function loadData() {
+function load() {
     var version = localStorage.getItem('version');
-    if (parseInt(version) === DATA_FORMAT_VERSION) {
-        var timestamp = localStorage.getItem('timestamp');
-        if (parseFloat(timestamp) <= time.now()) {
-            var storedData = localStorage.getItem('data');
-            data = JSON.parse(storedData);
-            filterData();
+    version = parseInt(version);
+
+    if (version >= 6 && version <= DATA_FORMAT_VERSION) {
+        try {
+            var storedLocation = localStorage.getItem('location');
+            location = parseInt(storedLocation);
+        } catch (err) {
+            console.log('Failed to load location: ' + err);
+        }
+    }
+
+    if (version === DATA_FORMAT_VERSION) {
+        try {
+            var timestamp = localStorage.getItem('timestamp');
+            if (parseFloat(timestamp) <= time.now()) {
+                var storedData = localStorage.getItem('data');
+                data = JSON.parse(storedData);
+                filterData();
+            }
+        } catch (err) {
+            console.log('Failed to load data: ' + err);
         }
     }
 }
 
-function storeData(newData) {
-    data = newData;
-    filterData();
+function store() {
     localStorage.setItem('version', DATA_FORMAT_VERSION);
+    localStorage.setItem('location', location);
     localStorage.setItem('timestamp', time.now());
     localStorage.setItem('data', JSON.stringify(data));
 }
@@ -132,3 +169,4 @@ function storeData(newData) {
 module.exports.init = init;
 module.exports.currentMenu = currentMenu;
 module.exports.fastSellers = fastSellers;
+module.exports.setLocation = setLocation;
