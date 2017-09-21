@@ -10,6 +10,9 @@ var parser = require('./parser');
 var time = require('./time');
 
 
+var request = null;
+
+
 function updateMenuData(data, location, callback) {
     if (data == null) {
         data = [];
@@ -47,18 +50,25 @@ function getAge(menu) {
 }
 
 function loadDay(data, location, day, dayCount, callback) {
-    var request = new XMLHttpRequest();
+    if (request != null) {
+        request.abort();
+    }
+
+    request = new XMLHttpRequest();
 
     request.onload = function() {
+        request = null;
         parseMenu(data, location, day, dayCount, this.responseText, callback);
     };
 
     request.onerror = function() {
+        request = null;
         console.log('Error while loading data.');
         callback(day, false, data);
     }
 
     request.ontimeout = function() {
+        request = null;
         console.log('Timeout while loading data.');
         callback(day, false, data);
     }
