@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jan Hoffmann
+ * Copyright (c) 2017 Jan Hoffmann
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,8 +46,14 @@ function fastSellersHandler() {
     }
 }
 
+function resetHandler() {
+    if (appReady) {
+        sender.sendReset();
+    }
+}
 
-storage.init(errorHandler, menuHandler, fastSellersHandler);
+
+storage.init(errorHandler, menuHandler, fastSellersHandler, resetHandler);
 
 
 Pebble.addEventListener("showConfiguration",

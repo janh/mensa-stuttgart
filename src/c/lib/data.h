@@ -15,6 +15,7 @@
 #define MESSAGE_TYPE_ERROR 0
 #define MESSAGE_TYPE_MENU 1
 #define MESSAGE_TYPE_FAST_SELLERS 2
+#define MESSAGE_TYPE_RESET 3
 
 
 typedef struct data_menu_category {

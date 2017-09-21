@@ -10,6 +10,7 @@
 #include "util.h"
 #include "strings.h"
 #include "../windows/error_window.h"
+#include "../windows/main_window.h"
 
 #include <pebble.h>
 
@@ -33,11 +34,22 @@ static data_fast_seller *s_fast_sellers;
 static AppTimer *s_timer;
 
 
+static void timeout_handler(void *data) {
+  s_timer = NULL;
+  window_stack_pop(false);
+  error_window_push(STRING_ERROR_TITLE_TRANSFER, STRING_ERROR_DESC_TRANSFER_TIMEOUT);
+}
+
 static void cancel_timer() {
   if (s_timer != NULL) {
     app_timer_cancel(s_timer);
     s_timer = NULL;
   }
+}
+
+static void start_timer() {
+  cancel_timer();
+  s_timer = app_timer_register(30000, timeout_handler, NULL);
 }
 
 
@@ -229,6 +241,21 @@ static void handle_fast_sellers(DictionaryIterator *iterator) {
 }
 
 
+static void handle_reset() {
+  start_timer();
+
+  clear_menu_categories();
+  clear_menu_meals();
+  clear_fast_sellers();
+
+  s_menu_received = false;
+  s_error_received = false;
+
+  window_stack_pop_all(false);
+  main_window_push();
+}
+
+
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
   if (s_error_received) {
     return;
@@ -249,6 +276,9 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     case MESSAGE_TYPE_FAST_SELLERS:
       handle_fast_sellers(iterator);
       break;
+    case MESSAGE_TYPE_RESET:
+      handle_reset(iterator);
+      break;
     default:
       APP_LOG(APP_LOG_LEVEL_INFO, "Unhandled message: %" PRId32, message_type);
     }
@@ -260,12 +290,6 @@ static void inbox_dropped_handler(AppMessageResult reason, void *context) {
   snprintf(desc, sizeof(desc), STRING_ERROR_DESC_TRANSFER_MESSAGE_DROPPED, reason);
   window_stack_pop(false);
   error_window_push(STRING_ERROR_TITLE_TRANSFER, desc);
-}
-
-static void timeout_handler(void *data) {
-  s_timer = NULL;
-  window_stack_pop(false);
-  error_window_push(STRING_ERROR_TITLE_TRANSFER, STRING_ERROR_DESC_TRANSFER_TIMEOUT);
 }
 
 
@@ -282,7 +306,7 @@ bool data_init_receiver() {
     return false;
   }
 
-  s_timer = app_timer_register(30000, timeout_handler, NULL);
+  start_timer();
 
   app_message_open(2048, 32);
 

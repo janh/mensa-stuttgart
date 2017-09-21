@@ -13,6 +13,7 @@ var keys = require('message_keys');
 var MESSAGE_TYPE_ERROR = 0;
 var MESSAGE_TYPE_MENU = 1;
 var MESSAGE_TYPE_FAST_SELLERS = 2;
+var MESSAGE_TYPE_RESET = 3;
 
 
 var messageQueue = [];
@@ -84,6 +85,13 @@ function sendFastSellers() {
     queueMessage(dict);
 }
 
+function sendReset() {
+    var dict = {};
+    dict[keys.MessageType] = MESSAGE_TYPE_RESET;
+
+    queueMessage(dict);
+}
+
 
 function queueMessage(dict) {
     messageQueue.push(dict);
@@ -118,3 +126,4 @@ function sendMessage(dict, count) {
 module.exports.sendError = sendError;
 module.exports.sendMenu = sendMenu;
 module.exports.sendFastSellers = sendFastSellers;
+module.exports.sendReset = sendReset;

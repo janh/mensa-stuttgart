@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jan Hoffmann
+ * Copyright (c) 2017 Jan Hoffmann
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,7 +13,7 @@ var time = require('./time');
 var DATA_FORMAT_VERSION = 6;
 
 
-var cbError, cbMenu, cbFastSeller;
+var cbError, cbMenu, cbFastSeller, cbReset;
 
 var menuReady = false;
 var fastSellersReady = false;
@@ -23,10 +23,11 @@ var data = null;
 var location = 2;
 
 
-function init(callbackError, callbackMenu, callbackFastSeller) {
+function init(callbackError, callbackMenu, callbackFastSeller, callbackReset) {
     cbError = callbackError;
     cbMenu = callbackMenu;
-    cbFastSeller = callbackFastSeller;
+    cbFastSeller = callbackFastSeller
+    cbReset = callbackReset;
 
     load();
 
@@ -115,6 +116,8 @@ function setLocation(newLocation) {
         fastSellersReady = false;
 
         store();
+
+        cbReset();
 
         reader.updateMenuData(data, location, readerCallback);
     }
