@@ -25,13 +25,13 @@ typedef struct data_menu_category {
 } data_menu_category;
 
 typedef struct data_menu_meal {
-  char title[64];
+  char title[128];
   char price_student[5];
   char price_guest[5];
 } data_menu_meal;
 
 typedef struct data_fast_seller {
-  char title[64];
+  char title[128];
   int32_t date;
 } data_fast_seller;
 
