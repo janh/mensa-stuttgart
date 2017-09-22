@@ -178,8 +178,8 @@ function parseMeal(row) {
         prices = prices.replace(/[€\s]/g, '');
         prices = prices.split('/');
 
-        var priceStudent = prices[0] + ' €';
-        var priceGuest = prices[1] + ' €';
+        var priceStudent = prices[0];
+        var priceGuest = prices[1];
 
         var fastSellerIcon = priceColumn.findElementsByFilter(function(element) {
             if (element.name() == 'img') {
