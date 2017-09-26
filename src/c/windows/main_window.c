@@ -7,6 +7,7 @@
  */
 
 #include "main_window.h"
+#include "../layers/message_layer.h"
 #include "../layers/progress_layer.h"
 #include "../lib/colors.h"
 #include "../lib/util.h"
@@ -24,37 +25,20 @@ static const GTextAlignment TEXT_ALIGNMENT_MENU = PBL_IF_RECT_ELSE(GTextAlignmen
 
 static Window *s_main_window;
 static MenuLayer *s_menu_layer;
-static TextLayer *s_text_layer;
+static MessageLayer *s_message_layer;
 static ProgressLayer *s_progress_layer;
 
 static bool s_progress_layer_visible;
 static bool s_progress_layer_animating;
 
-static char s_unavailable_text[48];
-
 
 static void update_unavailable_text() {
-  Layer *window_layer = window_get_root_layer(s_main_window);
-  GRect bounds = layer_get_bounds(window_layer);
-  int size_index = size_get_index();
-
   char *message = data_get_menu_message();
   if (strlen(message) > 0) {
-    snprintf(s_unavailable_text, sizeof(s_unavailable_text), STRING_MENU_NOT_AVAILABLE_MESSAGE, message);
+    message_layer_set_content(s_message_layer, STRING_MENU_NOT_AVAILABLE_MESSAGE, message);
   } else {
-    snprintf(s_unavailable_text, sizeof(s_unavailable_text), STRING_MENU_NOT_AVAILABLE);
+    message_layer_set_content(s_message_layer, STRING_MENU_NOT_AVAILABLE, message);
   }
-
-  int16_t text_width = SIZE_UNAVAILABLE_WIDTH[size_index];
-  GRect rect = GRect((bounds.size.w - text_width) / 2, 0, text_width, bounds.size.h);
-  layer_set_frame(text_layer_get_layer(s_text_layer), rect);
-
-  text_layer_set_text(s_text_layer, s_unavailable_text);
-
-  GSize size = text_layer_get_content_size(s_text_layer);
-  rect.origin.y = (bounds.size.h - size.h) / 2 - 5;
-  rect.size.h = size.h + 10;
-  layer_set_frame(text_layer_get_layer(s_text_layer), rect);
 }
 
 
@@ -69,11 +53,11 @@ static void update_content_layers(bool animate) {
   window_set_background_color(s_main_window, COLOR_WINDOW_BACKGROUND);
 
   Layer *menu_layer = menu_layer_get_layer(s_menu_layer);
-  Layer *text_layer = text_layer_get_layer(s_text_layer);
+  Layer *message_layer = s_message_layer;
 
   if (data_get_menu_category_count() != 0) {
     menu_layer_reload_data(s_menu_layer);
-    layer_set_hidden(text_layer, true);
+    layer_set_hidden(message_layer, true);
     layer_set_hidden(menu_layer, false);
     if (animate) {
       util_layer_animation_slide_up(menu_layer);
@@ -81,9 +65,9 @@ static void update_content_layers(bool animate) {
   } else {
     update_unavailable_text();
     layer_set_hidden(menu_layer, true);
-    layer_set_hidden(text_layer, false);
+    layer_set_hidden(message_layer, false);
     if (animate) {
-      util_layer_animation_slide_up(text_layer);
+      util_layer_animation_slide_up(message_layer);
     }
   }
 }
@@ -187,10 +171,10 @@ static void window_load(Window *window) {
 
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-  int size_index = size_get_index();
 
   GRect bounds_menu = bounds;
   #ifdef PBL_ROUND
+    int size_index = size_get_index();
     bounds_menu.size.h += SIZE_CATEGORY_HEIGHT[size_index] / 2;
   #endif
   s_menu_layer = menu_layer_create(bounds_menu);
@@ -208,12 +192,9 @@ static void window_load(Window *window) {
   layer_set_hidden(menu_layer_get_layer(s_menu_layer), true);
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 
-  s_text_layer = text_layer_create(bounds);
-  text_layer_set_text_color(s_text_layer, COLOR_WINDOW_FOREGROUND);
-  text_layer_set_font(s_text_layer, fonts_get_system_font(SIZE_UNAVAILABLE_FONT[size_index]));
-  text_layer_set_text_alignment(s_text_layer, GTextAlignmentCenter);
-  layer_set_hidden(text_layer_get_layer(s_text_layer), true);
-  layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
+  s_message_layer = message_layer_create(bounds);
+  layer_set_hidden(s_message_layer, true);
+  layer_add_child(window_layer, s_message_layer);
 
   s_progress_layer = progress_layer_create(bounds);
   layer_add_child(window_layer, s_progress_layer);
@@ -223,7 +204,7 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
   menu_layer_destroy(s_menu_layer);
-  text_layer_destroy(s_text_layer);
+  message_layer_destroy(s_message_layer);
   progress_layer_destroy(s_progress_layer);
   window_destroy(s_main_window);
   s_main_window = NULL;

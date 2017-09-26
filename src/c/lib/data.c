@@ -26,7 +26,7 @@ static data_menu_category *s_menu_categories;
 static int32_t s_menu_meals_count;
 static data_menu_meal *s_menu_meals;
 
-static char s_menu_message[32];
+static char s_menu_message[128];
 
 static int32_t s_fast_sellers_count;
 static data_fast_seller *s_fast_sellers;

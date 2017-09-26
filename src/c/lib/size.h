@@ -26,8 +26,11 @@ extern const char *SIZE_PRICE_FONT[3];
 extern const int16_t SIZE_PRICE_HEIGHT[3];
 extern const int16_t SIZE_PRICE_OFFSET[3];
 
-extern const char *SIZE_UNAVAILABLE_FONT[3];
-extern const int16_t SIZE_UNAVAILABLE_WIDTH[3];
+extern const char *SIZE_MESSAGE_TITLE_FONT[3];
+extern const char *SIZE_MESSAGE_DESC_FONT[3];
+extern const int16_t SIZE_MESSAGE_WIDTH[3];
+extern const int16_t SIZE_MESSAGE_HEIGHT[3];
+extern const int16_t SIZE_MESSAGE_MARGIN[3];
 
 extern const char *SIZE_ERROR_TITLE_FONT[3];
 extern const char *SIZE_ERROR_DESC_FONT[3];
