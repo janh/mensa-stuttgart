@@ -51,3 +51,12 @@
 ### Improvements
 
 * Update holiday detection
+
+
+## 1.6 (2017-09-26)
+
+### Improvements
+
+* Update for new Studierendenwerk website
+  * Configuration page for location
+  * Support for longer meal names and messages
