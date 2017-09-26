@@ -18,7 +18,7 @@ var cbError, cbMenu, cbFastSeller, cbReset;
 var menuReady = false;
 var fastSellersReady = false;
 
-var data = null;
+var data = [];
 
 var location = 2;
 
@@ -31,13 +31,13 @@ function init(callbackError, callbackMenu, callbackFastSeller, callbackReset) {
 
     load();
 
-    if (data != null && data.length > 0) {
-        var day = new time.Day();
-        if (day.getUTCTimestamp() == data[0].date || !day.isWeekday()) {
-            menuReady = true;
-            cbMenu();
-        }
+    var day = new time.Day();
+    if ((data.length > 0 && day.getUTCTimestamp() == data[0].date) || !day.isWeekday()) {
+        menuReady = true;
+        cbMenu();
+    }
 
+    if (data.length > 0) {
         fastSellersReady = true;
         cbFastSeller();
     }

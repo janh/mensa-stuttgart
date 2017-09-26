@@ -22,7 +22,7 @@ function updateMenuData(data, location, callback) {
     var dayCount = 0;
 
     var menu = getMenu(data, day);
-    if (getAge(menu) > 300) {
+    if (day.isWeekday() && getAge(menu) > 300) {
         loadDay(data, location, day, dayCount, callback);
     } else {
         loadNextDay(data, location, day, dayCount, callback);
