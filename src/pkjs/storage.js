@@ -119,6 +119,12 @@ function setLocation(newLocation) {
 
         cbReset();
 
+        var day = new time.Day();
+        if (!day.isWeekday()) {
+            menuReady = true;
+            cbMenu();
+        }
+
         reader.updateMenuData(data, location, readerCallback);
     }
 }
