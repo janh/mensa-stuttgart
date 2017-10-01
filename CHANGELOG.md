@@ -60,3 +60,10 @@
 * Update for new Studierendenwerk website
   * Configuration page for location
   * Support for longer meal names and messages
+
+
+## 1.7 (2017-10-01)
+
+### Bug Fixes
+
+* Send empty menu when changing location on weekend to avoid timeout error
