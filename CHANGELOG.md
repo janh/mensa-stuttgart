@@ -67,3 +67,14 @@
 ### Bug Fixes
 
 * Send empty menu when changing location on weekend to avoid timeout error
+
+
+### 1.8 (2018-06-11)
+
+### Improvements
+
+* Support for changes on Studierendenwerk website
+
+### Bug Fixes
+
+* Better error detection
