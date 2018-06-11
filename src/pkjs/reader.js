@@ -78,7 +78,7 @@ function loadDay(data, location, day, dayCount, callback) {
     }
 
     var dateString = day.toString();
-    var params = 'func=make_spl&locId=' + encodeURIComponent(location) + '&date=' + encodeURIComponent(dateString) + '&lang=de';
+    var params = 'func=make_spl&locId=' + encodeURIComponent(location) + '&date=' + encodeURIComponent(dateString) + '&lang=de&startThisWeek=' + encodeURIComponent(dateString) + '&startNextWeek=' + encodeURIComponent(dateString);
 
     request.timeout = 30000;
     request.open('POST', 'https://sws2.maxmanager.xyz/inc/ajax-php_konnektor.inc.php');
