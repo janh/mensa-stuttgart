@@ -10,7 +10,7 @@ var reader = require('./reader');
 var time = require('./time');
 
 
-var DATA_FORMAT_VERSION = 6;
+var DATA_FORMAT_VERSION = 7;
 
 
 var cbError, cbMenu, cbFastSeller, cbReset;
