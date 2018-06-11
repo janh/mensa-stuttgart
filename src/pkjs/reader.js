@@ -57,6 +57,10 @@ function loadDay(data, location, day, dayCount, callback) {
     request = new XMLHttpRequest();
 
     request.onload = function() {
+        if (request.status != 200) {
+            this.onerror();
+            return;
+        }
         request = null;
         parseMenu(data, location, day, dayCount, this.responseText, callback);
     };
