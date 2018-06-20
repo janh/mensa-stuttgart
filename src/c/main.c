@@ -25,16 +25,18 @@ static void app_glance_reload_callback(AppGlanceReloadSession *session, size_t l
     count = limit;
   }
 
-  AppGlanceSlice slice = (AppGlanceSlice) {};
-  slice.layout.icon = APP_GLANCE_SLICE_DEFAULT_ICON;
-
   data_fast_seller *fast_seller;
 
   for (unsigned int i = 0; i < count; i++) {
     fast_seller = data_get_fast_seller(i);
 
-    slice.layout.subtitle_template_string = fast_seller->title;
-    slice.expiration_time = fast_seller->date;
+    AppGlanceSlice slice = (AppGlanceSlice) {
+      .layout = {
+        .icon = APP_GLANCE_SLICE_DEFAULT_ICON,
+        .subtitle_template_string = fast_seller->title
+      },
+      .expiration_time = fast_seller->date
+    };
 
     AppGlanceResult result = app_glance_add_slice(session, slice);
     if (result != APP_GLANCE_RESULT_SUCCESS) {
