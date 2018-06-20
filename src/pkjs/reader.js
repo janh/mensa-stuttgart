@@ -180,6 +180,7 @@ function parseMeal(row) {
 
         var prices = priceColumn.findElementsByName('div')[0].content();
         prices = prices.replace(/[€\s]/g, '');
+        prices = prices.split('(')[0].trim();
         prices = prices.split('/');
 
         var priceStudent = prices[0];
