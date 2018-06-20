@@ -78,3 +78,11 @@
 ### Bug Fixes
 
 * Better error detection
+
+
+## 1.9 (2018-06-20)
+
+### Bug Fixes
+
+* Properly parse guest price for buffet
+* Fix building on Ubuntu host
